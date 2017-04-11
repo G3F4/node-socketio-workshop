@@ -1,4 +1,4 @@
-const sqlite = require('sqlite');
+const sqlite = require('sqlite/legacy');
 
 (async () => {
   const db = await sqlite.open('chat.db');

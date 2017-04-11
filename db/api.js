@@ -1,4 +1,4 @@
-const sqlite = require('sqlite');
+const sqlite = require('sqlite/legacy');
 
 const logUserMessage = async (user, message, room) => {
   console.log(['db.logUserMessage'], user, message, room);
