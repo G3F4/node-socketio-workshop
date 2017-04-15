@@ -27,6 +27,26 @@ exports.listen = (server) => {
       id: socket.id,
       room: DEFAULT_ROOM
     };
+    const onRoom = (value) => {
+      console.log(['socket.on'], EVENTS.ROOM, value);
+      const oldRoom = user.room;
+
+      if (rooms.indexOf(value) < 0) {
+        rooms.push(value);
+        socket.broadcast.emit(EVENTS.ROOMS, rooms);
+        io.local.emit(EVENTS.ROOMS, rooms);
+        io.sockets.emit(EVENTS.ROOMS, rooms);
+      }
+
+      user.room = value;
+      socket.join(value);
+      socket.leave(oldRoom);
+      socket.broadcast.to(oldRoom).emit(EVENTS.MESSAGE, `Użytkownik ${user.name} opuścił pokój`);
+      socket.broadcast.to(value).emit(EVENTS.MESSAGE, `Użytkownik ${user.name} dołączył do pokoju`);
+      socket.emit(EVENTS.MESSAGE, `Zmieniłeś pokój na ${value}`);
+      socket.emit(EVENTS.ROOM, value);
+    };
+
     connected[name] = user;
 
     socket.join(DEFAULT_ROOM);
@@ -56,6 +76,10 @@ exports.listen = (server) => {
       }
     });
 
+    socket.on(EVENTS.ROOM, (value) => {
+      onRoom(value);
+    });
+
     socket.on(EVENTS.COMMAND, (data) => {
       console.log(['socket.on'], EVENTS.COMMAND, data);
       const { command, value } = extractCommandAndValue(data);
@@ -76,22 +100,7 @@ exports.listen = (server) => {
       }
 
       if (command === COMMANDS.ROOM) {
-        const oldRoom = user.room;
-
-        if (rooms.indexOf(value) < 0) {
-          rooms.push(value);
-          socket.broadcast.emit(EVENTS.ROOMS, rooms);
-          io.local.emit(EVENTS.ROOMS, rooms);
-          io.sockets.emit(EVENTS.ROOMS, rooms);
-        }
-
-        user.room = value;
-        socket.join(value);
-        socket.leave(oldRoom);
-        socket.broadcast.to(oldRoom).emit(EVENTS.MESSAGE, `Użytkownik ${user.name} opuścił pokój`);
-        socket.broadcast.to(value).emit(EVENTS.MESSAGE, `Użytkownik ${user.name} dołączył do pokoju`);
-        socket.emit(EVENTS.MESSAGE, `Zmieniłeś pokój na ${value}`);
-        socket.emit(EVENTS.ROOM, value);
+        onRoom(value);
       }
     });
 
