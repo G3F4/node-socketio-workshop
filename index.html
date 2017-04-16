@@ -88,16 +88,27 @@
           const value = input.val();
           console.log(['onSubmit'], value);
           if (value.indexOf('@') === 0) {
-            socket.emit('pm', value.slice(1));
+            const userName = value.substr(1, value.indexOf(' ')).trim();
+            const message = value.substr(value.indexOf(' '), value.length).trim();
+            
+            socket.emit('pm', { userName, message });
           } else
-          if (value.indexOf('/') === 0) {
-            socket.emit('command', value.slice(1));
+          if (value.indexOf('/name') === 0) {
+            socket.emit('name', value.slice('/name'.length).trim());
+          } else
+          if (value.indexOf('/room') === 0) {
+            socket.emit('room', value.slice('/room'.length).trim());
           }
           else {
             console.log(['emit.message'], value);
             socket.emit('message', value);
           }
           input.val('');
+        });
+
+        socket.on('clients', (clients) => {
+//          $('#room').text(room);
+          console.log(['socket.on.clients'], clients);
         });
 
         socket.on('room', (room) => {

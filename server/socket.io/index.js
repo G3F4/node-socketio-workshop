@@ -1,31 +1,40 @@
 const socketio = require('socket.io');
 const { logUserMessage } = require('../../db/api');
-const { DEFAULT_NAME, DEFAULT_ROOM, EVENTS, COMMANDS } = require('../constans');
+const { DEFAULT_NAME, DEFAULT_ROOM, EVENTS } = require('../constans');
 
+// file globals for simplicity
 const connected = {};
+const users = {};
 const rooms = [DEFAULT_ROOM];
 let connections = 0;
 
-const getConnectedUserBySocketId = (id) => Object.keys(connected)
-  .map(key => connected[key])
-  .find(user => user.id === id);
-
-const extractCommandAndValue = (data) => ({
-  command: data.split(' ').slice(0, 1).join(''),
-  value: data.split(' ').slice(1).join(' ')
-});
-
+// handle sockets
 exports.listen = (server) => {
   const io = socketio(server);
   io.on(EVENTS.CONNECTION, (socket) => {
-    console.log(['io.on'], EVENTS.CONNECTION);
-    connections++;
-    const name = `${DEFAULT_NAME}${connections}`;
+    console.log(['io.on'], EVENTS.CONNECTION, socket.id);
     const user = {
-      name,
-      socket,
+      name: `${DEFAULT_NAME}${connections}`,
       id: socket.id,
       room: DEFAULT_ROOM
+    };
+    const onName = (value) => {
+      console.log(['socket.on'], EVENTS.NAME, value);
+      if (users[value]) {
+        socket.emit(EVENTS.MESSAGE, `Nazwa ${value} jest zajęta`)
+      } else {
+        const oldName = user.name;
+
+        user.name = value;
+        users[value] = user;
+        delete users[oldName];
+
+        socket.broadcast.to(users[value].room).emit(EVENTS.MESSAGE, `Użytkownik ${oldName} zmienił nazwę na: ${value}`);
+        socket.emit(EVENTS.MESSAGE, `Zmieniłeś nazwę na ${value}`);
+        socket.emit(EVENTS.USER, user.name);
+        socket.broadcast.emit(EVENTS.USERS, Object.keys(users));
+        socket.emit(EVENTS.USERS, Object.keys(users));
+      }
     };
     const onRoom = (value) => {
       console.log(['socket.on'], EVENTS.ROOM, value);
@@ -46,66 +55,54 @@ exports.listen = (server) => {
       socket.emit(EVENTS.MESSAGE, `Zmieniłeś pokój na ${value}`);
       socket.emit(EVENTS.ROOM, value);
     };
+    const onPM = ({ userName, message }) => {
+      console.log(['socket.on'], EVENTS.PM, { userName, message });
+      const userTo = users[userName];
 
-    connected[name] = user;
+      if (userTo) {
+        socket.to(userTo.id).emit(EVENTS.PM, `Użytkownik ${user.name} wysłał Ci prywatną wiadomość o treści: ${message}`);
+        socket.emit(EVENTS.PM, `Prywatna wiadomość do ${userName}: ${message}`);
+      } else {
+        socket.emit(EVENTS.PM, `Nie można wysłać wiadomości do użytkownika ${userName}`);
+      }
+    };
+    const onDisconnect = () => {
+      console.log(['io.on'], EVENTS.DISCONNECT, connected);
+      io.clients((error, users) => {
+        socket.broadcast.emit(EVENTS.MESSAGE, `Użytkownik ${user.name} rozłączył się`);
+        socket.broadcast.emit(EVENTS.USERS, users);
+      });
 
-    socket.join(DEFAULT_ROOM);
-    socket.emit(EVENTS.ROOM, DEFAULT_ROOM);
-    socket.emit(EVENTS.ROOMS, rooms);
-
-    socket.on(EVENTS.MESSAGE, async (data) => {
+      delete connected[user.name];
+    };
+    const onMessage = async (data) => {
       console.log(['socket.on'], EVENTS.MESSAGE, data);
       const name = user.name;
+
       await logUserMessage(name, user.room, data);
 
       io.sockets.in(user.room).emit(EVENTS.MESSAGE, `${name}: ${data}`);
-    });
+    };
 
-    socket.on(EVENTS.PM, (data) => {
-      console.log(['socket.on'], EVENTS.PM, data);
-      const { command: userToName, value } = extractCommandAndValue(data);
-      const userTo = connected[userToName];
-      const userToSocket = userTo ? userTo.socket : null;
-      const userFrom = getConnectedUserBySocketId(socket.id);
+    // add user to connected users and create mapping for accessing users info by name and socket id
+    users[user.name] = user;
+    connected[socket.id] = users[user.name];
+    connections++;
 
-      if (userToSocket) {
-        userToSocket.emit(EVENTS.PM, `Użytkownik ${userFrom.name} wysłał Ci prywatną wiadomość o treści: ${value}`);
-        socket.emit(EVENTS.PM, `Prywatna wiadomość do ${userToName}: ${value}`);
-      } else {
-        socket.emit(EVENTS.PM, `Nie można wysłać wiadomości do użytkownika ${userToName}`);
-      }
-    });
+    // join room and emit initial data
+    socket.join(user.room);
+    socket.emit(EVENTS.ROOM, user.room);
+    socket.emit(EVENTS.ROOMS, rooms);
+    socket.emit(EVENTS.USER, user.name);
+    socket.emit(EVENTS.USERS, Object.keys(users));
+    socket.broadcast.emit(EVENTS.USERS, Object.keys(users));
+    socket.broadcast.emit(EVENTS.MESSAGE, `Użytkownik ${user.name} połączył się`);
 
-    socket.on(EVENTS.ROOM, (value) => {
-      onRoom(value);
-    });
-
-    socket.on(EVENTS.COMMAND, (data) => {
-      console.log(['socket.on'], EVENTS.COMMAND, data);
-      const { command, value } = extractCommandAndValue(data);
-
-      if (command === COMMANDS.NAME) {
-        if (connected[value]) {
-          socket.emit(EVENTS.MESSAGE, `Nazwa ${value} jest zajęta`)
-        } else {
-          const oldName = user.name;
-
-          user.name = value;
-          connected[value] = user;
-          delete connected[oldName];
-
-          socket.broadcast.to(connected[value].room).emit(EVENTS.MESSAGE, `Użytkownik ${oldName} zmienił nazwę na: ${value}`);
-          socket.emit(EVENTS.MESSAGE, `Zmieniłeś nazwę na ${value}`);
-        }
-      }
-
-      if (command === COMMANDS.ROOM) {
-        onRoom(value);
-      }
-    });
-
-    socket.on(EVENTS.DISCONNECT, () => {
-      console.log(['io.on'], EVENTS.DISCONNECT);
-    });
+    // handle sockets events
+    socket.on(EVENTS.MESSAGE, onMessage);
+    socket.on(EVENTS.NAME, onName);
+    socket.on(EVENTS.PM, onPM);
+    socket.on(EVENTS.ROOM, onRoom);
+    socket.on(EVENTS.DISCONNECT, onDisconnect);
   });
 };

@@ -24,7 +24,7 @@
     "node": "7.x"
   },
   "scripts": {
-    "start": "babel-node server",
+    "start": "BABEL=true babel-node server",
     "client": "babel-node client",
     "dev": "nodemon server"
   },

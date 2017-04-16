@@ -1,4 +1,5 @@
-const sqlite = require('sqlite/legacy');
+// podczas odpalania kodu transpilowanego babelem potrzebujemy werjsę legacy
+const sqlite = require(process.env.BABEL ? 'sqlite/legacy' : 'sqlite');
 
 const logUserMessage = async (user, message, room) => {
   console.log(['db.logUserMessage'], user, message, room);
