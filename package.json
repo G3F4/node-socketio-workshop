@@ -11,8 +11,10 @@
     "babel-preset-react": "^6.5.0",
     "babel-preset-stage-0": "^6.5.0",
     "babel-register": "^6.6.0",
+    "bcrypt-as-promised": "^1.1.0",
     "blessed": "^0.1.81",
     "express": "^4.15.2",
+    "jsonwebtoken": "^7.3.0",
     "react": "^0.14.0",
     "react-blessed": "^0.1.8",
     "socket.io": "^1.7.3",
@@ -24,7 +26,7 @@
     "node": "7.x"
   },
   "scripts": {
-    "start": "babel-node server",
+    "start": "BABEL=true babel-node server",
     "client": "babel-node client",
     "dev": "nodemon server"
   },
