@@ -7,6 +7,8 @@ import Input from './Input';
 
 const socket = io('http://localhost:30001'); // now the client connects to the server
 const INPUT_HEIGHT = 3;
+let token = null;
+
 export default class App extends Component {
   state = {
     height: screen.height,
@@ -48,6 +50,15 @@ export default class App extends Component {
       screen.debug(['socket.on.users'], users);
       this.setState({ users });
     });
+    socket.on('logged', (auth) => {
+      token = auth;
+      screen.debug(['socket.on.logged'], auth);
+    });
+
+    socket.on('errors', (errors) => {
+      screen.debug(['socket.on.errors'], errors);
+      this.setState({ messages: [...this.state.messages, errors] });
+    });
   }
 
   onSubmit(value, node) {
@@ -56,37 +67,48 @@ export default class App extends Component {
       const userName = value.substr(1, value.indexOf(' ')).trim();
       const message = value.substr(value.indexOf(' '), value.length).trim();
 
-      socket.emit('pm', { userName, message });
+      socket.emit('pm', { token, userName, message });
+    } else
+    if (value.indexOf('/login') === 0) {
+      const [name, password] = value.slice('/login'.length).trim().split(' ');
+      socket.emit('login', { name, password });
+    } else
+    if (value.indexOf('/register') === 0) {
+      const [name, password] = value.slice('/register'.length).trim().split(' ');
+      socket.emit('register', { name, password });
     } else
     if (value.indexOf('/name') === 0) {
-      socket.emit('name', value.slice('/name'.length).trim());
+      socket.emit('name', {
+        token,
+        name: value.slice('/name'.length).trim(),
+      });
     } else
     if (value.indexOf('/room') === 0) {
-      socket.emit('room', value.slice('/room'.length).trim());
+      socket.emit('room', {
+        token,
+        room: value.slice('/room'.length).trim(),
+      });
     }
     else {
-      screen.debug(['emit.message'], value);
-      socket.emit('message', value);
+      console.log(['emit.message'], value);
+      socket.emit('message', {
+        message: value
+      });
     }
   }
 
   onRoomSelect(room) {
     screen.debug(['App.onRoomSelect'], room);
-    socket.emit('room', room);
+    socket.emit('room', { token, room });
   }
 
-  onUserSelect(user) {
-    screen.debug(['App.onUserSelect'], user);
+  onUserSelect(userName) {
+    screen.debug(['App.onUserSelect'], userName);
+    socket.emit('pm', { token, userName, message: `Pozdrawiam` });
   }
 
   render() {
     const { connected, user, users, messages, room, rooms, height, width } = this.state;
-
-    const clientUser = users.find(item => item === user);
-    const restUsers = users.filter(item => item !== user);
-    screen.debug('{ clientUser, restUsers }', { users, user, clientUser, restUsers });
-
-
     const root = {
       width,
       height,
@@ -118,10 +140,7 @@ export default class App extends Component {
     };
     const usersProps = {
       selected: user,
-      items: clientUser && restUsers && [
-        clientUser,
-        ...restUsers
-      ],
+      items: users,
       position: {
         top: '50%',
         left: '70%',

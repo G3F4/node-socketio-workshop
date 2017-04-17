@@ -8,29 +8,6 @@
         padding: 0;
         box-sizing: border-box;
       }
-      #messages {
-        list-style-type: none;
-        margin: 0; padding: 0;
-      }
-      #messages li {
-        padding: 5px 10px;
-      }
-      #messages li:nth-child(odd) {
-        background: #eee;
-      }
-      #send {
-        float: right;
-      }
-      #room {
-        background-color: #eadcdc;
-        border-bottom: 3px solid;
-      }
-      #rooms {
-        float: right;
-        background-color: #eadcdc;
-        height: 95vh;
-        width: 25%;
-      }
       #chat {
         width: 75%;
         height: 95vh;
@@ -57,6 +34,30 @@
         background: rgb(130, 224, 255);
         border: none;
       }
+      #messages {
+        list-style-type: none;
+        margin: 0; padding: 0;
+      }
+      #messages li {
+        padding: 5px 10px;
+      }
+      #messages li:nth-child(odd) {
+        background: #eee;
+      }
+      #send {
+        float: right;
+      }
+      #room {
+        background-color: #eadcdc;
+        border-bottom: 3px solid;
+      }
+      #rooms {
+        float: right;
+        background-color: #eadcdc;
+        height: 50vh;
+        width: 25%;
+        border-bottom: 3px solid;
+      }
       #rooms-header {
         padding: 10px;
       }
@@ -75,6 +76,31 @@
       #rooms-list li:nth-child(odd):hover {
         background-color: #ddd9d9;
       }
+      #users {
+        float: right;
+        background-color: #eadcdc;
+        top: 50vh;
+        height: 50vh;
+        width: 25%;
+      }
+      #users-header {
+        padding: 10px;
+      }
+      #users-list {
+        list-style-type: none;
+      }
+      #users-list li {
+        padding: 5px 10px;
+      }
+      #users-list li:hover {
+        background-color: #ddd9d9;
+      }
+      #users-list li:nth-child(odd) {
+        background: #eee;
+      }
+      #users-list li:nth-child(odd):hover {
+        background-color: #ddd9d9;
+      }
     </style>
     <script src="/socket.io/socket.io.js"></script>
     <script src="https://code.jquery.com/jquery-1.11.1.js"></script>
@@ -82,6 +108,7 @@
       $(() => {
         const socket = io();
         const input = $('#m');
+        let token = null;
 
         $('form').submit((e) => {
           e.preventDefault();
@@ -91,27 +118,62 @@
             const userName = value.substr(1, value.indexOf(' ')).trim();
             const message = value.substr(value.indexOf(' '), value.length).trim();
             
-            socket.emit('pm', { userName, message });
+            socket.emit('pm', { token, userName, message });
+          } else
+          if (value.indexOf('/login') === 0) {
+            const [name, password] = value.slice('/login'.length).trim().split(' ');
+            socket.emit('login', { name, password });
+          } else
+          if (value.indexOf('/register') === 0) {
+            const [name, password] = value.slice('/register'.length).trim().split(' ');
+            socket.emit('register', { name, password });
           } else
           if (value.indexOf('/name') === 0) {
-            socket.emit('name', value.slice('/name'.length).trim());
+            socket.emit('name', {
+              token,
+              name: value.slice('/name'.length).trim(),
+            });
           } else
           if (value.indexOf('/room') === 0) {
-            socket.emit('room', value.slice('/room'.length).trim());
+            socket.emit('room', {
+              token,
+              room: value.slice('/room'.length).trim(),
+            });
           }
           else {
             console.log(['emit.message'], value);
-            socket.emit('message', value);
+            socket.emit('message', {
+              message: value
+            });
           }
           input.val('');
         });
 
-        socket.on('clients', (clients) => {
-//          $('#room').text(room);
-          console.log(['socket.on.clients'], clients);
+        socket.on('users', (users) => {
+          console.log(['socket.on.users'], users);
+          $('#users-list').empty();
+          users.forEach(user => {
+            $('#users-list').append($('<li>').text(user).click(() => {
+              const userName = user;
+              const message = `Pozdrawiam`;
+
+              socket.emit('pm', { token, userName, message });
+            }));
+          })
+        });
+
+        socket.on('logged', (auth) => {
+          token = auth;
+          console.log(['socket.on.logged'], auth);
+        });
+
+        socket.on('errors', (errors) => {
+          console.log(['socket.on.errors'], errors);
+          $('#messages').append($('<li>').html(`<span style="color: #FF0000;">${errors}</span>`));
         });
 
         socket.on('room', (room) => {
+          console.log(['socket.on.room'], room);
           $('#room').text(room);
         });
 
@@ -119,14 +181,12 @@
           console.log(['socket.on.rooms'], rooms);
           $('#rooms-list').empty();
           rooms.forEach(room => {
-            $('#rooms-list').append($('<li>').text(room).click(() => {
-              socket.emit('command', `room ${room}`);
-            }));
+            $('#rooms-list').append($('<li>').text(room).click(() => socket.emit('room', { token, room })));
           })
         });
 
         socket.on('pm', (msg) => {
-          $('#messages').append($('<li>').html(`<span style="color: #FF0000;">${msg}</span>`));
+          $('#messages').append($('<li>').html(`<span style="color: #0000FF;">${msg}</span>`));
         });
 
         socket.on('message', (msg) => {
@@ -146,6 +206,10 @@
       <div id="rooms">
         <h2 id="rooms-header">Pokoje:</h2>
         <ul id="rooms-list"></ul>
+      </div>
+      <div id="users">
+        <h2 id="users-header">Użytkownicy:</h2>
+        <ul id="users-list"></ul>
       </div>
       <div id="form">
         <form action="">
