@@ -1,8 +1,8 @@
 const socketio = require('socket.io');
 const { compare, hash } = require('bcrypt-as-promised');
 const jsonwebtoken = require('jsonwebtoken');
-const { logUserMessage, addUser, getUser } = require('../../db/api');
-const { DEFAULT_NAME, DEFAULT_ROOM, EVENTS, SECRET, DEFAULT_SALT } = require('../constans');
+const { logUserMessage, addUser, getUser } = require('../db/api');
+const { DEFAULT_NAME, DEFAULT_ROOM, EVENTS, SECRET, DEFAULT_SALT } = require('./constans');
 
 // file globals for simplicity
 const connected = {};
@@ -211,6 +211,7 @@ exports.listen = (server) => {
 
           socket.emit(EVENTS.LOGGED, token);
           socket.emit(EVENTS.MESSAGE, `Zalogowano pomyślnie`);
+          socket.emit(EVENTS.USER, user.name);
           socket.emit(EVENTS.USERS, Object.keys(users));
           socket.broadcast.emit(EVENTS.USERS, Object.keys(users));
           socket.broadcast.emit(EVENTS.MESSAGE, `Użytkownik ${oldName} zalogował się jako ${name}`);
@@ -240,6 +241,7 @@ exports.listen = (server) => {
           socket.emit(EVENTS.LOGGED, token);
           socket.emit(EVENTS.MESSAGE, `Zarejestrowano pomyślnie`);
           socket.emit(EVENTS.MESSAGE, `Automatyczne logowanie`);
+          socket.emit(EVENTS.USER, user.name);
           socket.emit(EVENTS.USERS, Object.keys(users));
           socket.broadcast.emit(EVENTS.USERS, Object.keys(users));
           socket.broadcast.emit(EVENTS.MESSAGE, `Użytkownik ${oldName} zalogował się jako ${name}`);
