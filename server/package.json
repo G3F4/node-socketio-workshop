@@ -17,6 +17,10 @@
     "node": "7.x"
   },
   "scripts": {
-    "start": "node server/index"
+    "start": "node index",
+    "dev": "nodemon index"
+  },
+  "devDependencies": {
+    "nodemon": "^1.11.0"
   }
 }
