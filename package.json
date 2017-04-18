@@ -14,6 +14,7 @@
     "bcrypt-as-promised": "^1.1.0",
     "blessed": "^0.1.81",
     "express": "^4.15.2",
+    "immutability-helper": "^2.1.2",
     "jsonwebtoken": "^7.3.0",
     "react": "^0.14.0",
     "react-blessed": "^0.1.8",
@@ -28,6 +29,7 @@
   "scripts": {
     "start": "BABEL=true babel-node server",
     "client": "babel-node client",
+    "client:connect:heroku": "IO_HOST=https://warsawjs-workshop-5-chat.herokuapp.com babel-node client",
     "dev": "nodemon server"
   },
   "devDependencies": {
