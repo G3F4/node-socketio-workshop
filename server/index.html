@@ -106,93 +106,99 @@
     <script src="https://code.jquery.com/jquery-1.11.1.js"></script>
     <script>
       $(() => {
-        const socket = io();
-        const input = $('#m');
-        let token = null;
+        try {
+          const socket = io();
+          const input = $('#m');
+          let token = null;
 
-        $('form').submit((e) => {
-          e.preventDefault();
-          const value = input.val();
-          console.log(['onSubmit'], value);
-          if (value.indexOf('@') === 0) {
-            const userName = value.substr(1, value.indexOf(' ')).trim();
-            const message = value.substr(value.indexOf(' '), value.length).trim();
-            
-            socket.emit('pm', { token, userName, message });
-          } else
-          if (value.indexOf('/login') === 0) {
-            const [name, password] = value.slice('/login'.length).trim().split(' ');
-            socket.emit('login', { name, password });
-          } else
-          if (value.indexOf('/register') === 0) {
-            const [name, password] = value.slice('/register'.length).trim().split(' ');
-            socket.emit('register', { name, password });
-          } else
-          if (value.indexOf('/name') === 0) {
-            socket.emit('name', {
-              token,
-              name: value.slice('/name'.length).trim(),
-            });
-          } else
-          if (value.indexOf('/room') === 0) {
-            socket.emit('room', {
-              token,
-              room: value.slice('/room'.length).trim(),
-            });
-          }
-          else {
-            console.log(['emit.message'], value);
-            socket.emit('message', {
-              message: value
-            });
-          }
-          input.val('');
-        });
-
-        socket.on('users', (users) => {
-          console.log(['socket.on.users'], users);
-          $('#users-list').empty();
-          users.forEach(user => {
-            $('#users-list').append($('<li>').text(user).click(() => {
-              const userName = user;
-              const message = `Pozdrawiam`;
+          $('form').submit((e) => {
+            e.preventDefault();
+            const value = input.val();
+            console.log(['onSubmit'], value);
+            if (value.indexOf('@') === 0) {
+              const userName = value.substr(1, value.indexOf(' ')).trim();
+              const message = value.substr(value.indexOf(' '), value.length).trim();
 
               socket.emit('pm', { token, userName, message });
-            }));
-          })
-        });
+            } else
+            if (value.indexOf('/login') === 0) {
+              const [name, password] = value.slice('/login'.length).trim().split(' ');
+              socket.emit('login', { name, password });
+            } else
+            if (value.indexOf('/register') === 0) {
+              const [name, password] = value.slice('/register'.length).trim().split(' ');
+              socket.emit('register', { name, password });
+            } else
+            if (value.indexOf('/name') === 0) {
+              socket.emit('name', {
+                token,
+                name: value.slice('/name'.length).trim(),
+              });
+            } else
+            if (value.indexOf('/room') === 0) {
+              socket.emit('room', {
+                token,
+                room: value.slice('/room'.length).trim(),
+              });
+            }
+            else {
+              console.log(['emit.message'], value);
+              socket.emit('message', {
+                message: value
+              });
+            }
+            input.val('');
+          });
 
-        socket.on('logged', (auth) => {
-          token = auth;
-          console.log(['socket.on.logged'], auth);
-        });
+          socket.on('users', (users) => {
+            console.log(['socket.on.users'], users);
+            $('#users-list').empty();
+            users.forEach(user => {
+              $('#users-list').append($('<li>').text(user).click(() => {
+                const userName = user;
+                const message = `Pozdrawiam`;
 
-        socket.on('errors', (errors) => {
-          console.log(['socket.on.errors'], errors);
-          $('#messages').append($('<li>').html(`<span style="color: #FF0000;">${errors}</span>`));
-        });
+                socket.emit('pm', { token, userName, message });
+              }));
+            })
+          });
 
-        socket.on('room', (room) => {
-          console.log(['socket.on.room'], room);
-          $('#room').text(room);
-        });
+          socket.on('logged', (auth) => {
+            token = auth;
+            console.log(['socket.on.logged'], auth);
+          });
 
-        socket.on('rooms', (rooms) => {
-          console.log(['socket.on.rooms'], rooms);
-          $('#rooms-list').empty();
-          rooms.forEach(room => {
-            $('#rooms-list').append($('<li>').text(room).click(() => socket.emit('room', { token, room })));
-          })
-        });
+          socket.on('errors', (errors) => {
+            console.log(['socket.on.errors'], errors);
+            $('#messages').append($('<li>').html(`<span style="color: #FF0000;">${errors}</span>`));
+          });
 
-        socket.on('pm', (msg) => {
-          $('#messages').append($('<li>').html(`<span style="color: #0000FF;">${msg}</span>`));
-        });
+          socket.on('room', (room) => {
+            console.log(['socket.on.room'], room);
+            $('#room').text(room);
+          });
 
-        socket.on('message', (msg) => {
-          console.log(['socket.on.message'], msg);
-          $('#messages').append($('<li>').text(msg));
-        });
+          socket.on('rooms', (rooms) => {
+            console.log(['socket.on.rooms'], rooms);
+            $('#rooms-list').empty();
+            rooms.forEach(room => {
+              $('#rooms-list').append($('<li>').text(room).click(() => socket.emit('room', { token, room })));
+            })
+          });
+
+          socket.on('pm', (msg) => {
+            $('#messages').append($('<li>').html(`<span style="color: #0000FF;">${msg}</span>`));
+          });
+
+          socket.on('message', (msg) => {
+            console.log(['socket.on.message'], msg);
+            $('#messages').append($('<li>').text(msg));
+          });
+        }
+
+        catch (error) {
+          console.error(['error'], error);
+        }
       });
     </script>
   </head>

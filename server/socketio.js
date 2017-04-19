@@ -1,84 +1,17 @@
 const socketio = require('socket.io');
-const { compare, hash } = require('bcrypt-as-promised');
-const jsonwebtoken = require('jsonwebtoken');
-const { logUserMessage, addUser, getUser } = require('./db/api');
-const { DEFAULT_NAME, DEFAULT_ROOM, EVENTS, SECRET, DEFAULT_SALT } = require('./constans');
-
-// file globals for simplicity
-const connected = {};
-const users = {};
-const rooms = [DEFAULT_ROOM];
-let connections = 0;
-
-// wrap jsonwebtoken methods to return Promise
-const sign = (claims, key, options) => {
-  return new Promise(( resolve, reject ) => {
-    jsonwebtoken.sign(claims, key, options, (error, token) => {
-      if (error) {
-        reject(error);
-      } else {
-        resolve(token);
-      }
-    })
-  })
-};
-const verify = (token, key, options) => {
-  return new Promise(( resolve, reject ) => {
-    jsonwebtoken.verify(token, key, options, (error, verified) => {
-      if (error) {
-        reject(error);
-      } else {
-        resolve(verified);
-      }
-    })
-  })
-};
-
-// authentication
-const auth = async token => await verify(token, SECRET);
-const login = async ({ name, password }) => {
-  const user = await getUser(name);
-  if (!user) {
-    return null;
-  }
-
-  try {
-    console.log(['login.compare'], password, user.passwordHash);
-    const isPasswordCorrect = await compare(password, user.passwordHash);
-    console.log(['login.isPasswordCorrect'], isPasswordCorrect);
-
-    if(isPasswordCorrect) {
-      const token = await sign({ name }, SECRET);
-      console.log(['login.sign.await.token'], token);
-
-      return token;
-    }
-  }
-
-  catch (error) {
-    console.log(['login.error'], error);
-  }
-
-  return null;
-};
-const register = async ({ name, password }) => {
-  const passwordHash = await hash(password, DEFAULT_SALT);
-  const added = await addUser({ name, passwordHash });
-
-  if(added) {
-    const token = await sign({ name }, SECRET);
-    console.log(['register.sign.await.token'], token);
-
-    return token;
-  }
-
-  return null;
-};
+const { logUserMessage } = require('./db/api');
+const { DEFAULT_NAME, DEFAULT_ROOM, EVENTS } = require('./constans');
+const { login, register, verifyUser } = require('./authenticate');
 
 // handle sockets
-exports.listen = (server) => {
+module.exports = server => {
   const io = socketio(server);
-  io.on(EVENTS.CONNECTION, (socket) => {
+  const connected = {};
+  const users = {};
+  const rooms = [DEFAULT_ROOM];
+  let connections = 0;
+
+  io.on(EVENTS.CONNECTION, socket => {
     console.log(['io.on'], EVENTS.CONNECTION, socket.id);
     const user = {
       logged: false,
@@ -96,8 +29,8 @@ exports.listen = (server) => {
       console.log(['socket.on'], EVENTS.NAME, { name });
       if (!user.logged) {
         socket.emit(EVENTS.ERROR, `Tylko zalogowani użytkownicy mogą zmieniać nazwę`);
-      } else try {
-        const verified = await auth(token);
+      } else {
+        const verified = await verifyUser(token);
 
         if (verified) {
           if (users[name]) {
@@ -117,49 +50,41 @@ exports.listen = (server) => {
           }
         }
       }
-
-      catch (error) {
-        console.log(['socket.on.name.error'], error);
-        socket.emit(EVENTS.ERROR, JSON.stringify(error));
-      }
     };
     const onRoom = async ({ token, room }) => {
       if (!user.logged) {
         socket.emit(EVENTS.ERROR, `Tylko zalogowani użytkownicy mogą zmieniać pokój`);
-      } else try {
+      } else {
         const oldRoom = user.room;
-        const verified = await auth(token);
+        const verified = await verifyUser(token);
         console.log(['socket.on'], EVENTS.ROOM, { room });
 
         if (verified) {
           if (rooms.indexOf(room) < 0) {
             rooms.push(room);
             socket.broadcast.emit(EVENTS.ROOMS, rooms);
+            socket.emit(EVENTS.ROOM, room);
             io.local.emit(EVENTS.ROOMS, rooms);
             io.sockets.emit(EVENTS.ROOMS, rooms);
           }
 
           user.room = room;
-          socket.join(room);
-          socket.leave(oldRoom);
-          socket.broadcast.to(oldRoom).emit(EVENTS.MESSAGE, `Użytkownik ${user.name} opuścił pokój`);
-          socket.broadcast.to(room).emit(EVENTS.MESSAGE, `Użytkownik ${user.name} dołączył do pokoju`);
-          socket.emit(EVENTS.MESSAGE, `Zmieniłeś pokój na ${room}`);
-          socket.emit(EVENTS.ROOM, room);
+          socket.leave(oldRoom, () => {
+            socket.broadcast.to(oldRoom).emit(EVENTS.MESSAGE, `Użytkownik ${user.name} opuścił pokój`);
+          });
+          socket.join(room, () => {
+            socket.broadcast.to(room).emit(EVENTS.MESSAGE, `Użytkownik ${user.name} dołączył do pokoju`);
+            socket.emit(EVENTS.MESSAGE, `Zmieniłeś pokój na ${room}`);
+          });
         }
-      }
-
-      catch (error) {
-        console.log(['socket.on.room.error'], error);
-        socket.emit(EVENTS.ERROR, JSON.stringify(error));
       }
     };
     const onPM = async ({ token, userName, message }) => {
       if (!user.logged) {
         socket.emit(EVENTS.ERROR, `Tylko zalogowani użytkownicy mogą wysyłać prywatne wiadomości`);
-      } else try {
+      } else {
         const userTo = users[userName];
-        const verified = await auth(token);
+        const verified = await verifyUser(token);
         console.log(['socket.on'], EVENTS.PM, { userName, message });
 
         if (verified) {
@@ -173,11 +98,6 @@ exports.listen = (server) => {
           socket.emit(EVENTS.ERROR, `Tylko zalogowani użytkownicy mogą wysyłać prywatne wiadomości`);
         }
       }
-
-      catch (error) {
-        console.log(['socket.on.pm.error'], error);
-        socket.emit(EVENTS.ERROR, JSON.stringify(error));
-      }
     };
     const onDisconnect = () => {
       console.log(['io.on'], EVENTS.DISCONNECT, connected);
@@ -189,9 +109,9 @@ exports.listen = (server) => {
       delete connected[socket.id];
       delete users[user.name];
     };
-    const onMessage = async ({ message }) => {
+    const onMessage = ({ message }) => {
       console.log(['socket.on'], EVENTS.MESSAGE, { message });
-      await logUserMessage(user, message);
+      logUserMessage(user, message);
 
       io.sockets.in(user.room).emit(EVENTS.MESSAGE, `${user.name}: ${message}`);
     };
@@ -199,7 +119,7 @@ exports.listen = (server) => {
       console.log(['socket.on'], EVENTS.LOGIN, { name, password });
       if (user.logged) {
         socket.emit(EVENTS.ERROR, `Użytkownik jest już zalogowany`);
-      } else try {
+      } else {
         const token = await login({ name, password });
 
         if (token) {
@@ -217,19 +137,13 @@ exports.listen = (server) => {
           socket.broadcast.emit(EVENTS.MESSAGE, `Użytkownik ${oldName} zalogował się jako ${name}`);
         }
       }
-
-      catch (error) {
-        console.log(['socket.on.login.error'], error);
-        socket.emit(EVENTS.ERROR, JSON.stringify(error));
-
-      }
     };
     const onRegister = async ({ name, password }) => {
       console.log(['socket.on'], EVENTS.REGISTER, { name, password });
       if (user.logged) {
         socket.emit(EVENTS.ERROR, `Rejestracja możliwa tylko dla niezalogowanych użytkowników`);
-      } else try {
-        const token = await register({ name, password });
+      } else {
+        const token = await register({name, password});
 
         if (token) {
           const oldName = user.name;
@@ -249,12 +163,6 @@ exports.listen = (server) => {
           socket.emit(EVENTS.ERROR, `Rejestracja nie powiodła się`);
           socket.emit(EVENTS.ERROR, `Nazwy użytkownika zajęta`);
         }
-      }
-
-      catch (error) {
-        console.log(['socket.on.register.error'], error);
-        socket.emit(EVENTS.ERROR, JSON.stringify(error));
-
       }
     };
 

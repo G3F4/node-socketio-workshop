@@ -1,23 +1,16 @@
-// podczas odpalania kodu transpilowanego babelem potrzebujemy werjsę legacy
-const sqlite = require(process.env.BABEL ? 'sqlite/legacy' : 'sqlite');
+const sqlite = require('sqlite');
 
 (async () => {
   console.log(['db.init']);
-  let db = null;
   try {
-    db = await sqlite.open('chat.db');
-  }
-
-  catch(e) {
-    console.log(['error opening db'], e);
-  }
-
-  try {
+    const db = await sqlite.open('chat.db');
     await db.run(`CREATE TABLE if not exists messages (user TEXT, message TEXT, room TEXT, timestamp TEXT)`);
-    await db.run(`CREATE TABLE if not exists users (name TEXT, passwordHash TEXT)`);
+    await db.run(`CREATE TABLE if not exists users (id INTEGER PRIMARY KEY, name TEXT UNIQUE, passwordHash TEXT)`);
+    return true;
   }
 
-  catch(e) {
-    console.log(['error creating table'], e);
+  catch(error) {
+    console.log(['db.init.error'], error);
+    return false;
   }
 })();

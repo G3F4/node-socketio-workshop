@@ -19,9 +19,13 @@ const EVENTS = {
 };
 const SECRET = 'Lubię placki';
 const DEFAULT_SALT = 10;
+const ERRORS = {
+  USER_NAME_TAKEN: 'SQLITE_CONSTRAINT',
+};
 
+exports.EVENTS = EVENTS;
+exports.ERRORS = ERRORS;
 exports.DEFAULT_NAME = DEFAULT_NAME;
 exports.DEFAULT_ROOM = DEFAULT_ROOM;
 exports.DEFAULT_SALT = DEFAULT_SALT;
-exports.EVENTS = EVENTS;
 exports.SECRET = SECRET;

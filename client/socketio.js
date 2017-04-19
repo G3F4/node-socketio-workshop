@@ -1,6 +1,6 @@
 import io from 'socket.io-client';
 
-const socket = io('http://localhost:30001'); // now the client connects to the server
+const socket = io(process.env.IO_HOST || 'http://localhost:30001'); // now the client connects to the server
 let token = null;
 const socketListener = update => {
   socket.on('connect', () => update({ connected: { $set: true } }));
