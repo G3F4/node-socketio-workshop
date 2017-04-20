@@ -75,5 +75,5 @@ const register = async ({ name, password }) => {
 module.exports = {
   login,
   register,
-  verifyUser,
+  verify: verifyUser,
 };
