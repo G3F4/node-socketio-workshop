@@ -1,7 +1,9 @@
-# SERVER MILESTONE#0 - INITIAL
+# SERVER MILESTONE#1 - SOCKET.IO
 
 Cele:
-- Dodanie do projektu zależności dla obsługi zadań serwerowych
-- Startowanie serwera
-- Serwowanie do klienta web pliku index.html
-- Dodanie skryptów dla startu i trybu developerskiego
+- Dodanie do projektu socket.io
+- Utworzenie nowego pliku na logikę związaną z obsługą socketów
+- Utworzenie nowego pliku na stałe
+- Obsługa połączenia z klientem
+- Dołączenie do domyślengo pokoju
+- Emitowanie wiadomości w domyślnym pokoju
