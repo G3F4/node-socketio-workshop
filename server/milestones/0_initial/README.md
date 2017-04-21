@@ -5,3 +5,8 @@ Cele:
 - Startowanie serwera
 - Serwowanie do klienta web pliku index.html
 - Dodanie skryptów dla startu i trybu developerskiego
+
+## Nowe zależności:
+
+  express
+  nodemon (dev)
