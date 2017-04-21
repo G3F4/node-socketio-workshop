@@ -8,6 +8,8 @@
   "dependencies": {
     "express": "^4.15.2",
     "socket.io": "^1.7.3",
+    "sqlite": "^2.5.0",
+    "sqlite3": "^3.1.8"
   },
   "engines": {
     "node": "7.x"

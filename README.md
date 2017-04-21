@@ -1,6 +1,5 @@
 # SERVER MILESTONE#2 - EVENTS
 
 Cele:
-- zmiana nazwy
-- zmiana pokoju
-- prywatne wiadomości
+- utworzenie bazy danych
+- logowanie wiadomości do bazy
