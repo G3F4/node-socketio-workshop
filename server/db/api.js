@@ -39,6 +39,8 @@ const logUserMessage = async ({ name, room}, message) => {
   }
 };
 
-exports.addUser = addUser;
-exports.getUser = getUser;
-exports.logUserMessage = logUserMessage;
+module.exports = {
+  addUser,
+  getUser,
+  logUserMessage,
+};

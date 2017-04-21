@@ -72,8 +72,20 @@ const register = async ({ name, password }) => {
   }
 };
 
+const verifyToken = (next, onFail) => async (...args) => {
+  const [data] = args;
+  const isVerified = await data.token && verify(data.token);
+  if (isVerified) {
+    return next(...args);
+  }
+
+  onFail();
+  return false;
+};
+
 module.exports = {
   login,
   register,
   verify: verifyUser,
+  verifyToken,
 };

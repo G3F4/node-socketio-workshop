@@ -9,7 +9,7 @@ module.exports = server => {
   let connections = 0;
 
   io.on(EVENTS.CONNECTION, socket => {
-    socket.emit('connected', socket)
+    socket.emit('connected', socket);
     console.log(['io.on'], EVENTS.CONNECTION, socket.id);
     const user = {
       logged: false,
@@ -24,26 +24,16 @@ module.exports = server => {
 
     const onMessage = ({ message }) => {
       console.log(['socket.on'], EVENTS.MESSAGE, { message });
-      socket.broadcast.emit(EVENTS.MESSAGE, `${user.name}: ${message}`);
+      io.local.emit(EVENTS.MESSAGE, `${user.name}: ${message}`);
       // io.sockets.in(user.room).emit(EVENTS.MESSAGE, `${user.name}: ${message}`);
     };
     const onDisconnect = () => {
       console.log(['io.on'], EVENTS.DISCONNECT, connected);
-      io.clients((error, users) => {
-        socket.broadcast.emit(EVENTS.MESSAGE, `Użytkownik ${user.name} rozłączył się`);
-      });
 
       delete connected[socket.id];
       delete users[user.name];
     };
 
-    // join room and emit initial data
-    // socket.join(user.room);
-    // socket.emit(EVENTS.ROOM, user.room);
-    // socket.emit(EVENTS.ROOMS, rooms);
-    // socket.emit(EVENTS.USER, user.name);
-    // socket.emit(EVENTS.USERS, Object.keys(users));
-    // socket.broadcast.emit(EVENTS.USERS, Object.keys(users));
     socket.broadcast.emit(EVENTS.MESSAGE, `Użytkownik ${user.name} połączył się`);
 
     // handle sockets events
