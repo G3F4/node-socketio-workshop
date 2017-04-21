@@ -1,6 +1,9 @@
-# warsawjs-workshop-5-chat
+# SERVER MILESTONE#1 - SOCKET.IO
 
-# milestones
-
-Na tym branchu znajduje się ścieżka przejścia wszystkich kolejnych kamieni milowych.
-Każdy kolejny commit to kolejny milestone.
+Cele:
+- Dodanie do projektu socket.io
+- Utworzenie nowego pliku na logikę związaną z obsługą socketów
+- Utworzenie nowego pliku na stałe
+- Obsługa połączenia z klientem
+- Dołączenie do domyślengo pokoju
+- Emitowanie wiadomości w domyślnym pokoju
