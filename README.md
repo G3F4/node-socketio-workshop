@@ -3,11 +3,17 @@ WebSocket based, NodeJS chat application for the purposes of 5th edition of Wars
 
 
 Kolejne milestony:
+
 [Inicjalizacja repozytorium i powstawienie serwera](https://review.gerrithub.io/358093)
+
 [Dodanie osbługi socket.io](https://review.gerrithub.io/358096)
+
 [Zdarzenia czatu](https://review.gerrithub.io/358097)
+
 [Utrzymywanie danych](https://review.gerrithub.io/358098)
+
 [Logowanie](https://review.gerrithub.io/358100)
+
 [Autoryzacja](https://review.gerrithub.io/358101)
 
 
