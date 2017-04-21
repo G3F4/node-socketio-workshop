@@ -1,5 +1,6 @@
 # SERVER MILESTONE#2 - EVENTS
 
 Cele:
-- rejestracja
-- logowanie
+- zmiana nazwy
+- zmiana pokoju
+- prywatne wiadomości

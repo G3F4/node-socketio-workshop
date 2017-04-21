@@ -4,5 +4,6 @@ Cele:
 - Dodanie do projektu socket.io
 - Utworzenie nowego pliku na logikę związaną z obsługą socketów
 - Utworzenie nowego pliku na stałe
-- Ustanowienie połączenia z klientem
-- Emitowanie wiadomości
+- Obsługa połączenia z klientem
+- Dołączenie do domyślengo pokoju
+- Emitowanie wiadomości w domyślnym pokoju

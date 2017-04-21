@@ -14,15 +14,11 @@ const EVENTS = {
   LOGIN: 'login',
   LOGGED: 'logged',
   REGISTER: 'register',
-  REGISTERED: 'registered',
+  REGISTERED: 'registered'
 };
-const SECRET = 'Lubię placki';
-const DEFAULT_SALT = 10;
 
 module.exports = {
-  EVENTS,
-  DEFAULT_NAME,
   DEFAULT_ROOM,
-  DEFAULT_SALT,
-  SECRET,
+  DEFAULT_NAME,
+  EVENTS,
 };

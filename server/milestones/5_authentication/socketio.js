@@ -1,7 +1,6 @@
 const socketio = require('socket.io');
-const { logUserMessage } = require('./db/api');
 const { DEFAULT_NAME, DEFAULT_ROOM, EVENTS } = require('./constans');
-const { login, register, verifyToken } = require('./authenticate');
+const { addUser, getUser, logUserMessage } = require('./db/api');
 
 module.exports = server => {
   const io = socketio(server);
@@ -26,9 +25,8 @@ module.exports = server => {
     users[user.name] = user;
 
     //helpers functions
-    const loginUser = (name, token) => {
+    const loginUser = (name) => {
       user.logged = true;
-      socket.emit(EVENTS.LOGGED, token);
       changeUserName(name);
       socket.emit(EVENTS.MESSAGE, `Zalogowano pomyślnie`);
     };
@@ -52,7 +50,6 @@ module.exports = server => {
 
       return next(...args);
     };
-    const onTokenVerifyFail = () => socket.emit(EVENTS.ERROR, `Operacja dostępna tylko dla autoryzowanych użytkowników`);
 
     // event handlers
     const onDisconnect = () => {
@@ -114,23 +111,23 @@ module.exports = server => {
     };
     const onLogin = async ({ name, password }) => {
       console.log(['socket.on'], EVENTS.LOGIN, { name, password });
-      const token = await login({ name, password });
-
-      if (token) {
-        loginUser(name, token);
+      const user = await getUser({ name, password });
+      if (user) {
+        loginUser(name);
       } else {
         socket.emit(EVENTS.ERROR, `Logowanie nie powiodło się`);
       }
     };
     const onRegister = async ({ name, password }) => {
       console.log(['socket.on'], EVENTS.REGISTER, { name, password });
-      const token = await register({ name, password });
-
-      if (token) {
+      try {
+        await addUser({ name, password });
         socket.emit(EVENTS.MESSAGE, `Rejestracja przebiegła pomyślnie. Automatyczne logowanie`);
-        loginUser(name, token);
-      } else {
-        socket.emit(EVENTS.ERROR, `Rejestracja nie powiodła się`);
+        loginUser(name);
+      }
+
+      catch (error) {
+        socket.emit(EVENTS.ERROR, `Rejestracja nie powiodła się. Błąd: ${error}`);
       }
     };
 
@@ -146,9 +143,9 @@ module.exports = server => {
     // handle sockets events
     socket.on(EVENTS.DISCONNECT, onDisconnect);
     socket.on(EVENTS.MESSAGE, onMessage);
-    socket.on(EVENTS.NAME, verifyToken(onName, onTokenVerifyFail));
-    socket.on(EVENTS.PM, verifyToken(onPM, onTokenVerifyFail));
-    socket.on(EVENTS.ROOM, verifyToken(onRoom, onTokenVerifyFail));
+    socket.on(EVENTS.NAME, onName);
+    socket.on(EVENTS.PM, onPM);
+    socket.on(EVENTS.ROOM, onRoom);
     socket.on(EVENTS.LOGIN, preventLogged(onLogin));
     socket.on(EVENTS.REGISTER, preventLogged(onRegister));
   });
