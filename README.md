@@ -1,6 +1,7 @@
-# warsawjs-workshop-5-chat
+# SERVER MILESTONE#0 - INITIAL
 
-# milestones
-
-Na tym branchu znajduje się ścieżka przejścia wszystkich kolejnych kamieni milowych.
-Każdy kolejny commit to kolejny milestone.
+Cele:
+- Dodanie do projektu zależności dla obsługi zadań serwerowych
+- Startowanie serwera
+- Serwowanie do klienta web pliku index.html
+- Dodanie skryptów dla startu i trybu developerskiego
