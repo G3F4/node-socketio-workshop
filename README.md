@@ -1,6 +1,6 @@
-# SERVER MILESTONE#4 - LOGIN
+# SERVER MILESTONE#5 - AUTHENTICATION
 
 Cele:
-- rejestrowanie użytkowników do bazy
-- logowanie użytkownikw zapisanych w bazie
-- hashowanie haseł i weryfikacja
+- generowanie web tokenów
+- autoryzacja komunikacji
+

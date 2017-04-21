@@ -163,10 +163,6 @@
             })
           });
 
-          socket.on('connected', (socket) => {
-            console.log(['socket.on.connected'], socket);
-          });
-
           socket.on('connect', () => {
             console.log(['socket.on.connect']);
             $('#loader').hide();

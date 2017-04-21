@@ -16,6 +16,7 @@ const EVENTS = {
   REGISTER: 'register',
   REGISTERED: 'registered',
 };
+const SECRET = 'Lubię placki';
 const DEFAULT_SALT = 10;
 
 module.exports = {
@@ -23,4 +24,5 @@ module.exports = {
   DEFAULT_NAME,
   DEFAULT_ROOM,
   DEFAULT_SALT,
+  SECRET,
 };
