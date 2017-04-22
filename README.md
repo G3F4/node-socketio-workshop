@@ -1,23 +1,49 @@
 # warsawjs-workshop-5-chat
-WebSocket based, NodeJS chat application for the purposes of 5th edition of WarsawJS Workshops
 
+## Warsztat
+Repozytorium szkoleniowe. Zawiera zbiór branchy, na których został przedstawiony proces budowania aplikacji czatu w opraciu o web sockety w środowisku node.
+Aby rozpocząć wybierz kolejność implementacji:
+- serwer
+- client
 
-Kolejne milestony:
+Po wybraniu przejdź odpowiednio do brancha server-milestone#0-initial dla serwera
+albo client-milestone#0-initial
+i zacznij realizować cele przedstawione w README. Każdy branch posiada także rozwiązanie referencyjne.
 
-[Inicjalizacja repozytorium i powstawienie serwera](https://review.gerrithub.io/358093)
+## Testowanie serwera czatu
 
-[Dodanie osbługi socket.io](https://review.gerrithub.io/358096)
+Aby uruchomić serwer czatu należy po sklonowaniu repozytorium zainstalować niezbędne zależności dla serwera:
 
-[Zdarzenia czatu](https://review.gerrithub.io/358097)
+    $ npm i
 
-[Utrzymywanie danych](https://review.gerrithub.io/358098)
+Następnie uruchomić serwer poprzez wywołanie skrypty npm:
 
-[Logowanie](https://review.gerrithub.io/358100)
+    $ npm start
 
-[Autoryzacja](https://review.gerrithub.io/358101)
+Na koniec przejść do przeglądarki i odpalić adres localhost:30001
 
+## Testowanie klienta
 
-# socket.io workshop FAQ
+Aby uruchomić klienta terminalowego należy po sklonowaniu repozytorium przejść do folderu client
+
+    $ cd client
+
+Następnie zainstalować wymagane zależności:
+
+    $ npm i
+
+Odpalić klienta z połączeniem do serwera lokalnego:
+
+    $ npm start
+
+Albo odpalić do serwera zdalnego:
+
+    $ npm run connect:heroku
+    
+
+# workshop FAQ
+
+## socket.io
 
 Dołączenie do pokoju
 
@@ -44,51 +70,30 @@ Emitowanie do wszystkich w pokoju z wyjątkiem wysyłającego
     socket.broadcast.to(ROOM).emit(EVENT, MESSAGE);
 
 
-sending to all clients except sender
+do wszystkich poza wysyłającym
 
-    socket.broadcast.emit('broadcast', 'hello friends!');
-
-
-sending to all clients in 'game' room except sender
-
-    socket.to('game').emit('nice game', "let's play a game");
+    socket.broadcast.emit(EVENT, MESSAGE);
 
 
-sending to all clients in 'game1' and/or in 'game2' room, except sender
+do wszystkich użytkowników poza wysyłającym znajdujących się w konkretnym pokoju
 
-    socket.to('game1').to('game2').emit('nice game', "let's play a game (too)");
-
-
-sending to all clients in 'game' room, including sender
-
-    io.in('game').emit('big-announcement', 'the game will start soon');
+    socket.to(ROOM).emit(EVENT, MESSAGE);
 
 
-sending to all clients in namespace 'myNamespace', including sender
+do więcej niż jednego pokoju
 
-    io.of('myNamespace').emit('bigger-announcement', 'the tournament will start soon');
-
-
-sending to individual socketid (private message)
-
-    socket.to(<socketid>).emit('hey', 'I just met you');
+    socket.to(ROOM1).to(ROOM2).emit(EVENT, MESSAGE);
 
 
-sending with acknowledgement
+do konkretnego użytkownika w oparciu o id jego socketa
 
-    socket.emit('question', 'do you think so?', function (answer) {});
-
-
-sending without compression
-
-    socket.compress(false).emit('uncompressed', "that's rough");
+    socket.to(SOCKET.ID).emit(EVENT, MESSAGE);
 
 
-sending a message that might be dropped if the client is not ready to receive messages
+do wszystkich w pokoju
 
-    socket.volatile.emit('maybe', 'do you really need it?');
+    io.in(ROOM).emit(EVENT, MESSAGE);
 
+do wszystkich
 
-sending to all clients on this node (when using multiple nodes)
-
-    io.local.emit('hi', 'my lovely babies');
+    io.local.emit(EVENT, MESSAGE);
