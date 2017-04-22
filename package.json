@@ -6,7 +6,8 @@
   "author": "G3F4",
   "description": "WebSocket based, NodeJS chat application for the purposes of 5th edition of WarsawJS Workshops",
   "dependencies": {
-    "express": "^4.15.2"
+    "express": "^4.15.2",
+    "socket.io": "^1.7.3"
   },
   "engines": {
     "node": "7.x"
