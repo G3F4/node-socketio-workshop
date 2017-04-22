@@ -11,6 +11,7 @@
 0. Zainstalować jako zależność developerską `nodemon`(flaga `--save-dev`)
 1. Utworzyć plik `index.html` i wstawić kod klienta webowego do testowania serwera
 
+````
     <!doctype html>
     <html>
       <head>
@@ -246,6 +247,7 @@
         </div>
       </body>
     </html>
+````
 
 2. Zainstalować `expess` i zachować jako zależność projektu(flaga `--save`)
 3. Utworzyć plik `index.js` i następnie,
