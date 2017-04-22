@@ -8,7 +8,7 @@ const addUser = async ({ name, password }) => {
   try {
     const db = await sqlite.open('chat.db');
 
-    await db.run(`INSERT into users(name, passwordHash) VALUES ('${name}', '${passwordHash}')`);
+    return await db.run(`INSERT into users(name, passwordHash) VALUES ('${name}', '${passwordHash}')`);
   }
 
   catch(error) {
@@ -22,7 +22,7 @@ const getUser = async ({ name, password }) => {
     const db = await sqlite.open('chat.db');
     const [user = {}] = await db.all(`SELECT * FROM users WHERE name='${name}'`);
     console.log(['db.getUser.user'], user);
-    const isPasswordCorrect = await compare(password, user.passwordHash);
+    const isPasswordCorrect = await user.passwordHash && compare(password, user.passwordHash);
     console.log(['login.isPasswordCorrect'], isPasswordCorrect);
     return isPasswordCorrect ? user : null;
   }
