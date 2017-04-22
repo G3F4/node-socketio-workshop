@@ -5,4 +5,4 @@ Cele:
 - zmiana pokoju
 - prywatne wiadomości
 
-[Rozwiązanie](https://review.gerrithub.io/#/c/358174/)
+[Rozwiązanie](https://review.gerrithub.io/358191)
