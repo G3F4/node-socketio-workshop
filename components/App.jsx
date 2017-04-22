@@ -11,6 +11,8 @@ export default class App extends Component {
     height: screen.height,
     width: screen.width,
     messages: [],
+    room: null,
+    user: null,
   };
 
   componentDidMount() {
@@ -22,10 +24,34 @@ export default class App extends Component {
   }
 
   updateState = mutation => this.setState(update(this.state, mutation));
-  onSubmit = message => socketEmitter('message', { message });
+  onSubmit = value => {
+    if (value.indexOf('@') === 0) {
+      const userName = value.substr(1, value.indexOf(' ')).trim();
+      const message = value.substr(value.indexOf(' '), value.length).trim();
+
+      socketEmitter('pm', { userName, message });
+    } else
+    if (value.indexOf('/login') === 0) {
+      const [name, password] = value.slice('/login'.length).trim().split(' ');
+      socketEmitter('login', { name, password });
+    } else
+    if (value.indexOf('/register') === 0) {
+      const [name, password] = value.slice('/register'.length).trim().split(' ');
+      socketEmitter('register', { name, password });
+    } else
+    if (value.indexOf('/name') === 0) {
+      socketEmitter('name', { name: value.slice('/name'.length).trim() });
+    } else
+    if (value.indexOf('/room') === 0) {
+      socketEmitter('room', { room: value.slice('/room'.length).trim() });
+    }
+    else {
+      socketEmitter('message', { message: value });
+    }
+  };
 
   render() {
-    const { connected, height, width, messages } = this.state;
+    const { connected, height, width, messages, user, room } = this.state;
     const rootProps = { width, height };
     const wrapperProps = {
       width,
@@ -33,6 +59,7 @@ export default class App extends Component {
     };
     const logProps = {
       messages,
+      label: `${user}@${room}`,
     };
     const inputProps = {
       onSubmit: this.onSubmit,
@@ -41,7 +68,6 @@ export default class App extends Component {
         top: height - INPUT_HEIGHT,
       }
     };
-
 
     return connected ? (
       <box {...rootProps}>
