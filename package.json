@@ -7,7 +7,9 @@
   "description": "WebSocket based, NodeJS chat application for the purposes of 5th edition of WarsawJS Workshops",
   "dependencies": {
     "express": "^4.15.2",
-    "socket.io": "^1.7.3"
+    "socket.io": "^1.7.3",
+    "sqlite": "^2.5.0",
+    "sqlite3": "^3.1.8"
   },
   "engines": {
     "node": "7.x"
