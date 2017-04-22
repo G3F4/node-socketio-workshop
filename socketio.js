@@ -10,6 +10,8 @@ const socketListener = update => {
   socket.on('logged', auth => { token = auth; });
   socket.on('user', user => update({ user: { $set: user } }));
   socket.on('room', room => update({ room: { $set: room } }));
+  socket.on('users', users => update({ users: { $set: users } }));
+  socket.on('rooms', rooms => update({ rooms: { $set: rooms } }));
 };
 const socketEmitter = (event, value) => socket.emit(event, { token, ...value });
 

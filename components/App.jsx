@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import update from 'immutability-helper';
 import { socketEmitter, socketListener } from '../socketio';
-import { Input, Log } from './Chat';
+import { Input, Log, Rooms, Users } from './Chat';
 
 const INPUT_HEIGHT = 3;
 
@@ -13,6 +13,8 @@ export default class App extends Component {
     messages: [],
     room: null,
     user: null,
+    rooms: [],
+    users: [],
   };
 
   componentDidMount() {
@@ -49,9 +51,11 @@ export default class App extends Component {
       socketEmitter('message', { message: value });
     }
   };
+  onRoomSelect = room =>socketEmitter('room', { room });
+  onUserSelect = userName => socketEmitter('pm', { userName, message: `Pozdrawiam` });
 
   render() {
-    const { connected, height, width, messages, user, room } = this.state;
+    const { connected, height, width, messages, user, room, users, rooms } = this.state;
     const rootProps = { width, height };
     const wrapperProps = {
       width,
@@ -60,6 +64,16 @@ export default class App extends Component {
     const logProps = {
       messages,
       label: `${user}@${room}`,
+    };
+    const roomsProps = {
+      selected: room,
+      items: rooms,
+      onSelect: this.onRoomSelect,
+    };
+    const usersProps = {
+      selected: user,
+      items: users,
+      onSelect: this.onUserSelect,
     };
     const inputProps = {
       onSubmit: this.onSubmit,
@@ -73,6 +87,8 @@ export default class App extends Component {
       <box {...rootProps}>
         <box {...wrapperProps}>
           <Log {...logProps} />
+          <Rooms {...roomsProps} />
+          <Users {...usersProps} />
         </box>
         <Input {...inputProps}/>
       </box>
