@@ -1,6 +1,7 @@
 const app = require('express')();
 const { resolve } = require('path');
 const http = require('http').Server(app);
+require('./socketio')(http);
 
 const PORT = process.env.PORT || '30001';
 
