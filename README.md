@@ -8,4 +8,4 @@ Cele:
 - Dołączenie do domyślengo pokoju
 - Emitowanie wiadomości w domyślnym pokoju
 
-[Rozwiązanie](https://review.gerrithub.io/#/c/358171)
+[Rozwiązanie](https://review.gerrithub.io/358190)
