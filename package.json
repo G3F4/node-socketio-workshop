@@ -1,22 +1,27 @@
 {
-  "name": "warsawjs-workshop-5-chat",
-  "version": "1.1.3",
+  "name": "warsawjs-workshop-5-chat-client",
+  "version": "0.0.1",
   "repository": "https://github.com/G3F4/warsawjs-workshop-5-chat.git",
   "license": "MIT",
   "author": "G3F4",
-  "description": "WebSocket based, NodeJS chat application for the purposes of 5th edition of WarsawJS Workshops",
+  "description": "WebSocket based, NodeJS chat application for the purposes of 5th edition of WarsawJS Workshops(client)",
   "dependencies": {
-    "bcrypt-as-promised": "^1.1.0",
-    "express": "^4.15.2",
-    "jsonwebtoken": "^7.3.0",
-    "socket.io": "^1.7.3",
-    "sqlite": "^2.5.0",
-    "sqlite3": "^3.1.8"
+    "babel-cli": "^6.6.4",
+    "babel-preset-es2015": "^6.6.0",
+    "babel-preset-react": "^6.5.0",
+    "babel-preset-stage-0": "^6.5.0",
+    "babel-register": "^6.6.0",
+    "blessed": "^0.1.81",
+    "immutability-helper": "^2.1.2",
+    "react": "^0.14.0",
+    "react-blessed": "^0.1.8",
+    "socket.io-client": "^1.7.3"
   },
   "engines": {
     "node": "7.x"
   },
   "scripts": {
-    "start": "node server/index"
+    "start": "babel-node index",
+    "connect:heroku": "IO_HOST=https://warsawjs-workshop-5-chat.herokuapp.com babel-node index"
   }
 }
