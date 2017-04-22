@@ -8,7 +8,7 @@ const addUser = async ({ name, password }) => {
   try {
     const db = await sqlite.open('chat.db');
 
-    return await db.run(`INSERT into users(name, passwordHash) VALUES ('${name}', '${passwordHash}')`);
+    await db.run(`INSERT into users(name, passwordHash) VALUES ('${name}', '${passwordHash}')`);
   }
 
   catch(error) {
