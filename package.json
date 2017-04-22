@@ -12,13 +12,16 @@
     "babel-preset-stage-0": "^6.5.0",
     "babel-register": "^6.6.0",
     "blessed": "^0.1.81",
+    "immutability-helper": "^2.1.2",
     "react": "^0.14.0",
-    "react-blessed": "^0.1.8"
+    "react-blessed": "^0.1.8",
+    "socket.io-client": "^1.7.3"
   },
   "engines": {
     "node": "7.x"
   },
   "scripts": {
-    "start": "babel-node index"
+    "start": "babel-node index",
+    "connect:heroku": "IO_HOST=https://warsawjs-workshop-5-chat.herokuapp.com babel-node index"
   }
 }
