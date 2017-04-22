@@ -11,10 +11,6 @@ const EVENTS = {
   ROOMS: 'rooms',
   NAME: 'name',
   PM: 'pm',
-  LOGIN: 'login',
-  LOGGED: 'logged',
-  REGISTER: 'register',
-  REGISTERED: 'registered'
 };
 
 module.exports = {
