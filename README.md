@@ -7,3 +7,5 @@ Cele:
 - Obsługa połączenia z klientem
 - Dołączenie do domyślengo pokoju
 - Emitowanie wiadomości w domyślnym pokoju
+
+[Rozwiązanie](https://review.gerrithub.io/#/c/358171)
