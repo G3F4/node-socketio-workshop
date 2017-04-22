@@ -4,3 +4,5 @@ Cele:
 - generowanie web tokenów
 - autoryzacja komunikacji
 
+[Rozwiązanie](https://review.gerrithub.io/358195)
+
