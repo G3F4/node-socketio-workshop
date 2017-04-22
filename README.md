@@ -1,4 +1,4 @@
-# SERVER MILESTONE#2 - EVENTS
+# SERVER MILESTONE#3 - DATA PERSISTENCE
 
 ## Cele:
 - utworzenie bazy danych
