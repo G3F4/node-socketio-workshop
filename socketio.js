@@ -1,6 +1,6 @@
 const socketio = require('socket.io');
 const { DEFAULT_NAME, DEFAULT_ROOM, EVENTS } = require('./constans');
-const { logUserMessage } = require('./db/api');
+const { addUser, getUser, logUserMessage } = require('./db/api');
 
 module.exports = server => {
   const io = socketio(server);
@@ -16,6 +16,7 @@ module.exports = server => {
       id: socket.id,
       room: DEFAULT_ROOM,
       name: `${DEFAULT_NAME}${connections}`,
+      logged: false,
     };
 
     // add user to connected users and create mapping for accessing users info by name and socket id
@@ -24,6 +25,11 @@ module.exports = server => {
     users[user.name] = user;
 
     //helpers functions
+    const loginUser = (name) => {
+      user.logged = true;
+      changeUserName(name);
+      socket.emit(EVENTS.MESSAGE, `Zalogowano pomyślnie`);
+    };
     const changeUserName = (name) => {
       const oldName = user.name;
 
@@ -35,6 +41,14 @@ module.exports = server => {
       socket.emit(EVENTS.USER, user.name);
       io.local.emit(EVENTS.USERS, Object.keys(users));
       io.local.emit(EVENTS.MESSAGE, `Użytkownik ${oldName} zmienił nazwę na: '${name}'`);
+    };
+    const preventLogged = (next) => (...args) => {
+      if (user.logged) {
+        socket.emit(EVENTS.ERROR, `Operacja dostępna tylko dla niezalogowanych użytkowników`);
+        return false;
+      }
+
+      return next(...args);
     };
 
     // event handlers
@@ -95,6 +109,27 @@ module.exports = server => {
         socket.emit(EVENTS.ROOM, room);
       });
     };
+    const onLogin = async ({ name, password }) => {
+      console.log(['socket.on'], EVENTS.LOGIN, { name, password });
+      const user = await getUser({ name, password });
+      if (user) {
+        loginUser(name);
+      } else {
+        socket.emit(EVENTS.ERROR, `Logowanie nie powiodło się`);
+      }
+    };
+    const onRegister = async ({ name, password }) => {
+      console.log(['socket.on'], EVENTS.REGISTER, { name, password });
+      try {
+        await addUser({ name, password });
+        socket.emit(EVENTS.MESSAGE, `Rejestracja przebiegła pomyślnie. Automatyczne logowanie`);
+        loginUser(name);
+      }
+
+      catch (error) {
+        socket.emit(EVENTS.ERROR, `Rejestracja nie powiodła się. Błąd: ${error}`);
+      }
+    };
 
     // join room and emit initial data
     socket.join(user.room, () => {
@@ -111,5 +146,7 @@ module.exports = server => {
     socket.on(EVENTS.NAME, onName);
     socket.on(EVENTS.PM, onPM);
     socket.on(EVENTS.ROOM, onRoom);
+    socket.on(EVENTS.LOGIN, preventLogged(onLogin));
+    socket.on(EVENTS.REGISTER, preventLogged(onRegister));
   });
 };

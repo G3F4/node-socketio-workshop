@@ -11,10 +11,16 @@ const EVENTS = {
   ROOMS: 'rooms',
   NAME: 'name',
   PM: 'pm',
+  LOGIN: 'login',
+  LOGGED: 'logged',
+  REGISTER: 'register',
+  REGISTERED: 'registered',
 };
+const DEFAULT_SALT = 10;
 
 module.exports = {
-  DEFAULT_ROOM,
   DEFAULT_NAME,
+  DEFAULT_ROOM,
   EVENTS,
+  DEFAULT_SALT,
 };
