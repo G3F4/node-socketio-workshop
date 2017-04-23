@@ -69,6 +69,52 @@ dev
 
 - [nodemon](https://github.com/remy/nodemon)
 
+# cheatset
+
+## http
+
+Utworzenie serwera http
+
+````
+http.createServer([requestListener])
+````
+
+## express
+
+Nasłuchiwanie na żądanie typu `GET`
+
+````
+app.get(path, callback [, callback ...])
+````
+
+## bcrypt
+
+Tworzenie hasha
+
+````
+bcrypt.hash("bacon", SALT, null, (err, hash) => {});
+````
+
+Weryfikacja hasha
+
+````
+bcrypt.compare("bacon", hash, (err, res) => {});
+````
+
+## jsonwebtoken
+
+Tworzenie nowego tokena w oparciu o obiekt `CLAIMS` i `SECRET`
+
+````
+jwt.sign(CLAIMS, SECRET, (token) => { ... })
+````
+
+Weryfikacja tokena w oparciu o `SECRET`
+
+````
+const verified = jwt.verify(token, SECRET);
+````
+
 ## socket.io
 
 Dołączenie do pokoju
@@ -123,3 +169,54 @@ do wszystkich w pokoju
 do wszystkich
 
     io.local.emit(EVENT, MESSAGE);
+
+## socket.io-client
+
+Utworzenie socketa połączonego do wskazanego hosta
+
+````
+const socket = io('http://localhost');
+````
+
+Obsługa zdarzeń analogiczna do serwera
+
+## react-blessed
+
+Przykład użycia:
+
+````
+import React, {Component} from 'react';
+import blessed from 'blessed';
+import {render} from 'react-blessed';
+
+// Rendering a simple centered box
+class App extends Component {
+  render() {
+    return (
+      <box top="center"
+           left="center"
+           width="50%"
+           height="50%"
+           border={{type: 'line'}}
+           style={{border: {fg: 'blue'}}}>
+        Hello World!
+      </box>
+    );
+  }
+}
+
+// Creating our screen
+const screen = blessed.screen({
+  autoPadding: true,
+  smartCSR: true,
+  title: 'react-blessed hello world'
+});
+
+// Adding a way to quit the program
+screen.key(['escape', 'q', 'C-c'], function(ch, key) {
+  return process.exit(0);
+});
+
+// Rendering the React app using our screen
+const component = render(<App />, screen);
+````
