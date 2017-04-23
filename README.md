@@ -45,16 +45,29 @@ Albo odpalić do serwera zdalnego:
 
 ## biblioteki
 
-prod
-[express](https://github.com/expressjs/express)
-[socket.io](https://github.com/socketio/socket.io)
-[socket.io-client](https://github.com/socketio/socket.io-client)
-[blessed](https://github.com/chjj/blessed)
-[react-blessed](https://github.com/Yomguithereal/react-blessed)
-[bcrypt](https://github.com/kelektiv/node.bcrypt.js)
-[jsonwebtoken](https://github.com/auth0/node-jsonwebtoken)
+server
+
+- [express](https://github.com/expressjs/express)
+
+- [socket.io](https://github.com/socketio/socket.io)
+
+- [bcrypt](https://github.com/kelektiv/node.bcrypt.js)
+
+- [jsonwebtoken](https://github.com/auth0/node-jsonwebtoken)
+
+
+client
+
+- [socket.io-client](https://github.com/socketio/socket.io-client)
+
+- [blessed](https://github.com/chjj/blessed)
+
+- [react-blessed](https://github.com/Yomguithereal/react-blessed)
+
+
 dev
-[nodemon](https://github.com/remy/nodemon)
+
+- [nodemon](https://github.com/remy/nodemon)
 
 ## socket.io
 
