@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "c6ddb663_5e7bf23b",
+        "filename": "constans.js",
+        "patchSetId": 1
+      },
+      "lineNbr": 8,
+      "author": {
+        "id": 1010488
+      },
+      "writtenOn": "2017-04-23T12:09:04Z",
+      "side": 1,
+      "message": "komentarz",
+      "revId": "e682fda5e32bd68a840e77deb3f670e8cb09f6e6",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
