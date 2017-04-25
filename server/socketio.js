@@ -22,8 +22,8 @@ module.exports = server => {
 
     // add user to connected users and create mapping for accessing users info by name and socket id
     connections++;
-    connected[socket.id] = users[user.name];
     users[user.name] = user;
+    connected[socket.id] = users[user.name];
 
     //helpers functions
     const loginUser = (name, token) => {
